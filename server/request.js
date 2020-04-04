@@ -44,40 +44,127 @@ app.post("/movies",(request,response)=>{
 app.get("/movies/populate/:id", async (request,response)=>{
 
     const allMovies = await sdb(request.params.id);
-    console.log(allMovies);
+    
     collection.insertMany(allMovies,(error,result)=>{
         if(error){
             return response.status(500).send(error);
         }
-        console.log(result.status);
-        response.send(result);
+        console.log(JSON.stringify(allMovies, null, 2));
+        response.send(result.result.countDocuments);
     });
 
 });
 
-//get all films 
-app.get("/movies",(request,response)=>{
+
+//Delete all the document in database
+app.get("/movies/reset", async (request,response)=>{
+    
+    collection.deleteMany({},(error,result)=>{
+        if(error){
+            return response.status(500).send(error);
+        }
+        response.send(result.result);
+    });
+
+});
+
+//Get all the film in  DB
+app.get("/movies/all",(request,response)=>{
     const all= collection.find({}).toArray((error,result)=>{
         if(error){
             return response.status(500).send(error);
         }
-        console.log(result.status);
         response.send(result);
     });
-    console.log(all);
 
 });
 
 //fetch a specific movie
 app.get("/movies/:id",(request,response)=>{
-    collection.findOne({"_id": new ObjectId(request.params.id)},(error,result)=>{
+    collection.findOne({"id": request.params.id},(error,result)=>{
         if(error){
             return response.status(500).send(error);
         }
-        console.log(result.status);
+        console.log(result);
         response.send(result);
     });
-    console.log(all);
 
+});
+
+//fetch a random movie
+app.get("/movies",(request,response)=>{
+    collection.aggregate([{ $sample :{ size:1 } }]).toArray((error,result)=>{
+            if(error){
+                return response.status(500).send(error);
+            }
+            response.send(result);
+        });
+});
+
+//test find film with higher metascore
+app.get("/movies/testS",(request,response)=>{
+    collection.findOne({"metascore": 52},(error,result)=>{
+        if(error){
+            return response.status(500).send(error);
+        }
+        response.send(result);
+        console.log(result);
+    });
+});
+
+
+//Search for Denzel's movies.
+app.get("/movies/search?limit=5&metascore=77",(request,response)=>{
+    var limite = request.query.limit;
+    var meta= request.query.metascore;
+    console.log(limite,meta);
+    if (limite!= null && meta!= null)
+    {
+        var res= collection.find({"metascore": {"$gte": meta}});
+        /*.limit(limite,(error,result)=>{
+            if(error){
+                return response.status(500).send(error);
+            }
+            response.send(result);
+        });*/
+        response.send(res);
+    }
+    if(limite!= null  && meta== null ){
+        var res= collection.find({});
+        /*.limit(limite,(error,result)=>{
+            if(error){
+                return response.status(500).send(error);
+            }
+            response.send(result);
+        }); */
+        response.send(res);
+    }
+    if(limite== null && meta!= null){
+        var res= collection.find({"metascore": {"$gte": meta}})
+        /*.limit(5,(error,result)=>{
+            if(error){
+                return response.status(500).send(error);
+            }
+            response.send(result);
+        });*/
+        response.send(res); 
+    }
+
+});
+
+
+//Save a watched date and a review
+app.post("/movies/:id",(request,response)=>{
+    var myObjet={"id":new ObjectId(request.params.id),
+                "body": new BodyParser(request.body)};
+    console.log(myObjet);
+    collection.insertOne(request.body,(error,result)=>{
+        if(error){
+            console.log("error");
+            return response.status(500).send(error);
+        }
+        console.log("pk");
+        response.send(result.result);
+    });
 });
 

@@ -26,7 +26,7 @@ async function start (actor = DENZEL_IMDB_ID, metascore = METASCORE) {
 
 const [, , id, metascore] = process.argv;
 
-const movies = start(id, metascore);
+//const movies = start(id, metascore);
 
 module.exports = async (id) => {
   try {
@@ -35,7 +35,7 @@ module.exports = async (id) => {
     //const awesome = movies.filter(movie => movie.metascore >= metascore);
 
     console.log(`🍿 ${movies.length} movies found.`);
-    console.log(JSON.stringify(movies, null, 2));
+    //console.log(JSON.stringify(movies, null, 2));
     //console.log(`🥇 ${awesome.length} awesome movies found.`);
     //console.log(JSON.stringify(awesome, null, 2));
 
