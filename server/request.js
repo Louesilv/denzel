@@ -30,15 +30,6 @@ app.listen(9292, ()=>{
     });
 });
 
-/*
-app.post("/movies",(request,response)=>{
-    collection.insertOne(request.body,(error,result)=>{
-        if(error){
-            return response.status(500).send(error);
-        }
-        response.send(result.result);
-    });
-});*/
 
 //Populate the database with all the Denzel's movies from IMDb
 app.get("/movies/populate/:id", async (request,response)=>{
@@ -54,7 +45,6 @@ app.get("/movies/populate/:id", async (request,response)=>{
     });
 
 });
-
 
 //Delete all the document in database
 app.get("/movies/reset", async (request,response)=>{
@@ -100,58 +90,39 @@ app.get("/movies",(request,response)=>{
             response.send(result);
         });
 });
-
-//test find film with higher metascore
-app.get("/movies/testS",(request,response)=>{
-    collection.findOne({"metascore": 52},(error,result)=>{
-        if(error){
-            return response.status(500).send(error);
-        }
-        response.send(result);
-        console.log(result);
-    });
+//Search for Denzel's movies.
+app.get("/movies/search?metascore=77", async (request,response)=>{
+    //var limite = request.query.limit;
+    //var meta= request.query.metascore;
+    console.log(request.url);
+    collection.find({ }).toArray((error,result)=>{
+            if(error){
+                return response.status(500).send(error);
+            }
+            response.send(result);
+        });
+        /*
+    console.log(JSON.stringify(res, null, 2));
+    const awesome = res.filter(movie => movie.metascore >= meta);
+    response.send(awesome);*/
 });
-
 
 //Search for Denzel's movies.
-app.get("/movies/search?limit=5&metascore=77",(request,response)=>{
-    var limite = request.query.limit;
-    var meta= request.query.metascore;
-    console.log(limite,meta);
-    if (limite!= null && meta!= null)
-    {
-        var res= collection.find({"metascore": {"$gte": meta}});
-        /*.limit(limite,(error,result)=>{
+app.get("/movies/search?metascore=77", async (request,response)=>{
+    //var limite = request.query.limit;
+    //var meta= request.query.metascore;
+    console.log(request.url);
+    collection.find({ }).toArray((error,result)=>{
             if(error){
                 return response.status(500).send(error);
             }
             response.send(result);
-        });*/
-        response.send(res);
-    }
-    if(limite!= null  && meta== null ){
-        var res= collection.find({});
-        /*.limit(limite,(error,result)=>{
-            if(error){
-                return response.status(500).send(error);
-            }
-            response.send(result);
-        }); */
-        response.send(res);
-    }
-    if(limite== null && meta!= null){
-        var res= collection.find({"metascore": {"$gte": meta}})
-        /*.limit(5,(error,result)=>{
-            if(error){
-                return response.status(500).send(error);
-            }
-            response.send(result);
-        });*/
-        response.send(res); 
-    }
-
+        });
+        /*
+    console.log(JSON.stringify(res, null, 2));
+    const awesome = res.filter(movie => movie.metascore >= meta);
+    response.send(awesome);*/
 });
-
 
 //Save a watched date and a review
 app.post("/movies/:id",(request,response)=>{
